@@ -92,6 +92,7 @@ class Session(object):
         self.project_name = client.project_name
         self.endpoint_type = endpoint_type
         self.catalog = client.service_catalog.get_endpoints()
+        self.can_delete_project = True
         try:
             # Detect if we are admin or not
             client.roles.list()  # Only admins are allowed to do this

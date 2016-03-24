@@ -78,8 +78,7 @@ SECGROUPS_IDS = ["85cc3048-abc3-43cc-89b3-377341426ac5"]
 FLOATING_IPS_IDS = ["2f245a7b-796b-4f26-9cf9-9e82d248fda7",
                     "61cea855-49cb-4846-997d-801b70c71bdd"]
 SERVERS_IDS = ["616fb98f-46ca-475e-917e-2563e5a8cd19"]
-IMAGES_IDS = ["37717f53-3707-49b9-9dd0-fd063e6b9fc5", "4e150966-cbe7-4fd7-a964-41e008d20f10",
-              "482fbcc3-d831-411d-a073-ddc828a7a9ed"]
+IMAGES_IDS = ["4e150966-cbe7-4fd7-a964-41e008d20f10", "482fbcc3-d831-411d-a073-ddc828a7a9ed"]
 ALARMS_IDS = ["ca950223-e982-4552-9dec-5dc5d3ea4172"]
 STACKS_IDS = ["5c136348-5550-4ec5-8bd6-b83241844db3",
               "ec4083c1-3667-47d2-91c9-ce0bc8e3c2b9"]
@@ -1012,7 +1011,7 @@ IMAGES_LIST = {
             "deleted_at": None,
             "disk_format": "aki",
             "id": "4e150966-cbe7-4fd7-a964-41e008d20f10",
-            "is_public": True,
+            "is_public": False,
             "min_disk": 0,
             "min_ram": 0,
             "name": "cirros-0.3.1-x86_64-uec-kernel",
@@ -1031,7 +1030,7 @@ IMAGES_LIST = {
             "deleted_at": None,
             "disk_format": "ari",
             "id": "482fbcc3-d831-411d-a073-ddc828a7a9ed",
-            "is_public": True,
+            "is_public": False,
             "min_disk": 0,
             "min_ram": 0,
             "name": "cirros-0.3.1-x86_64-uec-ramdisk",

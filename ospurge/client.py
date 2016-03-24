@@ -142,8 +142,7 @@ class CinderVolumes(CinderResources):
 class CinderBackups(CinderResources):
 
     def list(self):
-        if self.session.is_admin and version.LooseVersion(
-                cinderclient.version_info.version_string()) < '1.4.0':
+        if self.session.is_admin:
             logging.warning('cinder volume-backups are ignored when ospurge is '
                             'launched with admin credentials because of the '
                             'following bug: '
@@ -472,8 +471,25 @@ class GlanceImages(base.Resources):
         self.project_id = session.project_id
 
     def list(self):
-        return filter(self._owned_resource, self.client.images.list(
-            owner=self.project_id))
+        images = filter(self._owned_resource,
+                              self.client.images.list(owner=self.project_id))
+
+        public_images = filter(self._has_public, images)
+        if public_images:
+            self.can_delete_project = False
+            for i in public_images:
+                logging.warning("image {} (id {}) is public, not "
+                                "deleting".format(i.name, i.id))
+
+        member_images = filter(self._has_members, images)
+        if member_images:
+            self.can_delete_project = False
+            for i in member_images:
+                logging.warning("image {} (id {}) has members, not "
+                                "deleting".format(i.name, i.id))
+
+        images = [i for i in images if i not in public_images + member_images]
+        return images
 
     def delete(self, image):
         super(GlanceImages, self).delete(image)
@@ -485,6 +501,12 @@ class GlanceImages(base.Resources):
     def _owned_resource(self, res):
         # Only considering resources owned by project
         return res.owner == self.project_id
+
+    def _has_public(self, res):
+        return res.is_public
+
+    def _has_members(self, res):
+        return len(self.client.image_members.list(res.id)) > 0
 
 
 class HeatStacks(base.Resources):
@@ -611,8 +633,12 @@ class KeystoneManager(object):
         return self.client.roles.remove_user_role(user_id, admin_role_id, project_id)
 
     def delete_project(self, project_id):
-        logging.info("* Deleting project {}.".format(project_id))
-        self.client.tenants.delete(project_id)
+        if self.can_delete_project:
+            logging.info("* Deleting project {}.".format(project_id))
+            self.client.tenants.delete(project_id)
+        else:
+            logging.warning("* Cannot delete project {} due to "
+                            "dependencies".format(project_id))
 
 
 def perform_on_project(admin_name, password, project, auth_url,
@@ -705,7 +731,7 @@ def parse_args():
                         help="Project name used for authentication. This project "
                              "will be purged if --own-project is set. "
                              "Defaults to env[OS_TENANT_NAME].")
-    parser.add_argument("--admin-role-name", required=False, default="admin",
+    parser.add_argument("--admin-role-name", required=False, default="Admin",
                         help="Name of admin role. Defaults to 'admin'.")
     parser.add_argument("--auth-url", action=EnvDefault,
                         envvar='OS_AUTH_URL', required=True,
