@@ -36,3 +36,24 @@ class TestServers(unittest.TestCase):
         server = mock.MagicMock()
         self.assertIn("VM (",
                       nova.Servers(self.creds_manager).to_str(server))
+
+
+class TestKeypairs(unittest.TestCase):
+    def setUp(self):
+        self.cloud = mock.Mock(spec_set=shade.openstackcloud.OpenStackCloud)
+        self.creds_manager = mock.Mock(cloud=self.cloud)
+
+    def test_list(self):
+        self.assertIs(self.cloud.list_keypairs.return_value,
+                      nova.Keypairs(self.creds_manager).list())
+        self.cloud.list_keypairs.assert_called_once_with()
+
+    def test_delete(self):
+        keypair = mock.MagicMock()
+        self.assertIsNone(nova.Keypairs(self.creds_manager).delete(keypair))
+        self.cloud.delete_keypair.assert_called_once_with(keypair['id'])
+
+    def test_to_string(self):
+        keypair = mock.MagicMock()
+        self.assertIn("Keypair (",
+                      nova.Keypairs(self.creds_manager).to_str(keypair))

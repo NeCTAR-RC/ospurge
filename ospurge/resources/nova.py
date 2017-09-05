@@ -29,3 +29,18 @@ class Servers(base.ServiceResource):
     def to_str(resource: Dict[str, Any]) -> str:
         return "VM (id='{}', name='{}')".format(
             resource['id'], resource['name'])
+
+
+class Keypairs(base.ServiceResource):
+    ORDER = 15
+
+    def list(self) -> Iterable:
+        return self.cloud.list_keypairs()
+
+    def delete(self, resource: Dict[str, Any]) -> None:
+        self.cloud.delete_keypair(resource['id'])
+
+    @staticmethod
+    def to_str(resource: Dict[str, Any]) -> str:
+        return "Keypair (id='{}', name='{}')".format(
+            resource['id'], resource['name'])
